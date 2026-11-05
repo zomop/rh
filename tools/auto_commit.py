@@ -25,6 +25,8 @@ def main() -> int:
                         help="Check once, then exit")
     parser.add_argument("--message", default="chore: save project changes",
                         help="Commit message")
+    parser.add_argument("--push", action="store_true",
+                        help="Push each created commit to the configured remote")
     args = parser.parse_args()
 
     if args.interval < 1:
@@ -48,6 +50,9 @@ def main() -> int:
                 commit_hash = git("rev-parse", "--short", "HEAD").stdout.strip()
                 subject = git("log", "-1", "--pretty=%s").stdout.strip()
                 print(f"Committed {commit_hash}: {subject}")
+                if args.push:
+                    git("push")
+                    print("Pushed to the configured Git remote.")
             elif result.returncode not in (0,):
                 print("Could not inspect staged changes:", result.stderr.strip())
         else:
